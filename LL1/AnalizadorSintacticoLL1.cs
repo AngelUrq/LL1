@@ -21,10 +21,21 @@ namespace LL1
             //Parte de Jhon
         }
 
-        private void EliminarRecursividadIzquierda()
+        string a = "";
+        private void EliminarRecursividadIzquierda(string cadena1)
         {
-            //Parte de Rubén
+            Clase_Separador cs = new Clase_Separador(); 
+            cs.Separar(cadena1);
+            for (int i = 0; i < cs.beta.Count; i++)
+            {
+                a = a + cs.alfa[i] + "->" + cs.beta[i] + "\n";
+            }
+            for (int i = 0; i < cs.nombreRegla.Count; i++)
+            {
+                a = a + cs.nombreRegla[i] + "->" + cs.resultado[i] + "\n";
+            }
         }
+
 
         private void CalcularPrimeros()
         {

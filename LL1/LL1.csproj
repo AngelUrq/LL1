@@ -44,6 +44,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AnalizadorSintacticoLL1.cs" />
+    <Compile Include="Clase_Separador.cs" />
     <Compile Include="Produccion.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
