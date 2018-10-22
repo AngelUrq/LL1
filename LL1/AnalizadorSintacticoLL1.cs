@@ -12,7 +12,21 @@ namespace LL1
         List<Produccion> listaProducciones;
 		List<Produccion> nuevasreglas = new List<Produccion>();
 
-		public AnalizadorSintacticoLL1()
+        public static string[] Terminales;
+        public static string[] NoTerminales;
+        public static string[] Resultado;
+        public static char[] NoTerminalesChar;
+
+
+
+        int posicion = 0;
+        int posicionfinal = 0;
+
+        string HayTerminal = "false";
+        string HayEpsilon = "false";
+
+
+        public AnalizadorSintacticoLL1()
         {
             IniciarProducciones();
         }
@@ -212,7 +226,118 @@ namespace LL1
 
         private void CalcularPrimeros()
         {
-            //Parte de Rodri
+            posicion = 0;
+            posicionfinal = NoTerminales.Length;
+            NoTerminalesChar = string.Join(string.Empty, NoTerminales).ToCharArray();
+
+
+            for (int i = 0; i < Terminales.Length; i++)
+            {
+                Terminales = new string[5];
+                NoTerminales = new string[5];
+
+                Terminales[0] = "S";
+                Terminales[0] = "A";
+                Terminales[0] = "B";
+                Terminales[0] = "B";
+                Terminales[0] = "D";
+                Terminales[0] = "D";
+
+                NoTerminales[0] = "Aa";
+                NoTerminales[0] = "BD";
+                NoTerminales[0] = "b";
+                NoTerminales[0] = "€";
+                NoTerminales[0] = "d";
+                NoTerminales[0] = "€";
+
+
+
+
+                char[] characters = Terminales[i].ToCharArray();
+                char[] charaux;
+                char[] charaux2;
+
+                if (posicion == 0)
+                {
+                    for (int j = 0; j < characters.Length; j++)
+                    {
+                        Console.WriteLine(characters[j]);
+                        Console.WriteLine("P ( " + NoTerminales[i] + " ) = {");
+                        if (Char.IsUpper(characters[j])) //Verifica si el primer caracter es No Terminal   
+                        {
+                            for (int s = 0; s < NoTerminales.Length; s++) //Recorre los No Terminales
+                            {
+                                if (characters[0].Equals(NoTerminalesChar[s]))//Recorre para encontrar el noterminal con el que se encontro
+                                {
+                                    charaux = Terminales[s].ToCharArray();
+                                    for (int ca = 0; ca < charaux.Length; ca++)
+                                    {
+                                        if (Char.IsUpper(charaux[ca]))
+                                        {
+                                            for (int s1 = 0; s1 < NoTerminales.Length; s1++) //Recorre los No Terminales
+                                            {
+                                                if (charaux[ca].Equals(NoTerminalesChar[s1]))
+                                                {
+                                                    charaux2 = Terminales[s1].ToCharArray();
+                                                    for (int caa = 0; caa < charaux2.Length; caa++)
+                                                    {
+
+                                                        if (Char.IsLower(charaux2[caa]) && charaux2[caa] != 'e')
+                                                        {
+                                                            Console.WriteLine(charaux2[caa]);
+
+                                                        }
+                                                        else if (charaux2[caa].Equals('e'))
+                                                        {
+                                                            HayEpsilon = "true";
+                                                        }
+
+
+                                                    }
+                                                }
+
+                                            }
+                                        }
+                                        else if (Char.IsUpper(charaux[ca]) && HayEpsilon.Equals("true"))
+                                        {
+                                            Console.WriteLine(characters[j]);
+                                            HayEpsilon = "false";
+                                        }
+                                        else if (Char.IsLower(charaux[ca]))
+                                        {
+                                            Console.WriteLine(charaux[ca]);
+                                            HayEpsilon = "false";
+                                        }
+                                        else if (charaux[ca].Equals('e'))
+                                        {
+                                            HayEpsilon = "true";
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        //En el caso que la siguiente sea terminal y se haya encontrado un epsilon
+                        else if (Char.IsUpper(characters[j]) && HayEpsilon.Equals("true"))
+                        {
+                            Console.WriteLine(characters[j]);
+                            HayEpsilon = "false";
+                        }
+                        else if (Char.IsLower(characters[j]) || characters[j].Equals('e')) //e se clasifica como epsilon
+                        {
+                            Console.WriteLine(characters[j]);
+                            HayEpsilon = "false";
+                        }
+                        else if (Char.IsLower(characters[j]))
+                        {
+                            Console.WriteLine(characters[j]);
+                        }
+
+                        Console.WriteLine("}");
+                    }
+                }
+
+
+            }
         }
 
         private void CalcularSiguientes()
@@ -234,6 +359,8 @@ namespace LL1
             listaProducciones.Add(new Produccion("B", "€"));
             listaProducciones.Add(new Produccion("B", "b"));
             listaProducciones.Add(new Produccion("B", "€"));
+
+
         }
 
     }
