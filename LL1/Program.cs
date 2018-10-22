@@ -11,6 +11,7 @@ namespace LL1
         
         static void Main(string[] args)
         {
+            Console.OutputEncoding = Encoding.UTF8;
             Console.WriteLine("Iniciando analizador sintáctico LL1...");
 
             AnalizadorSintacticoLL1 analizador = new AnalizadorSintacticoLL1();
