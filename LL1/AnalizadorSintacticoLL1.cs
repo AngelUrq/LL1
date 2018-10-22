@@ -21,6 +21,15 @@ namespace LL1
             //Parte de Jhon
         }
 
+        private void Cadena()
+        {
+            string cadena1 = "";
+            for (int i = 0; i < listaProducciones.Count; i++)
+            {
+                cadena1 = cadena1 + listaProducciones[i].GetLadoIzquierdo().ToString() + "->" + listaProducciones[i].GetLadoDerecho().ToString() + "\n";
+            }
+            EliminarRecursividadIzquierda(cadena1);
+        }
         string a = "";
         private void EliminarRecursividadIzquierda(string cadena1)
         {
