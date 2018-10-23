@@ -20,7 +20,7 @@ namespace LL1
         private List<Produccion> primeros;
         private List<Produccion> siguientes;
 
-        private string[,] tabla;
+        public string[,] tabla;
 
         public AnalizadorSintacticoLL1()
         {
@@ -466,7 +466,7 @@ namespace LL1
             {
                 for (int j = 0; j < tabla.GetLength(1); j++)
                 {
-                    tabla[i, j] = "";
+                    tabla[i, j] = " ";
                 }
             }
 
@@ -681,129 +681,132 @@ namespace LL1
             listaProducciones.Add(new Produccion("T", "a"));
             listaProducciones.Add(new Produccion("T", "b"));
             listaProducciones.Add(new Produccion("T", "c"));
-
+            
             terminales.Add("b");
             terminales.Add("a");
             terminales.Add("c");
             terminales.Add("&");
             terminales.Add("(");
             terminales.Add(")");
-
+            
             noTerminales.Add("S");
             noTerminales.Add("A");
             noTerminales.Add("E");
             noTerminales.Add("T");
 
             simboloInicial = "S";
-
+            
             foreach (string noTerminal in noTerminales)
             {
                 primeros.Add(new Produccion(noTerminal, ""));
                 siguientes.Add(new Produccion(noTerminal, ""));
             }
         }
-        
-		public void Probarcadena(List<String> cadena)
-		{
-			//inicia con el simbolo inicial modificar el simbolo inicial a probar
-			List<String> cadenareglas = new List<string>();
-			cadenareglas.Add("$");
-			//simbolo inicial
-			cadenareglas.Add(simboloInicial);
 
-			bool seguir_camino = true;
+        public bool Probarcadena(String[,] matriz, List<String> cadena, int fila, int longitud)
+        {
+            //inicia con el simbolo inicial modificar el simbolo inicial a probar
+            List<String> cadenareglas = new List<string>();
+            cadenareglas.Add("$");
+            //simbolo inicial
+            cadenareglas.Add(simboloInicial);
 
-			while (seguir_camino)
-			{
-				int count1 = 0;
-				int count2 = 0;
+            bool seguir_camino = true;
 
-                if(cadenareglas[cadenareglas.Count-1] == cadena[cadena.Count - 1])
+            while (seguir_camino)
+            {
+                int count1 = 0;
+                int count2 = 0;
+                if (cadenareglas[cadenareglas.Count - 1] == cadena[cadena.Count - 1])
                 {
                     cadenareglas.RemoveAt(cadenareglas.Count - 1);
                     cadena.RemoveAt(cadena.Count - 1);
                 }
 
-				if (("" + cadenareglas[cadenareglas.Count - 1]) != "$")
-				{
-					for (int x = 1; x < tabla.GetLength(0); x++)
-					{
-						if (("" + cadenareglas[cadenareglas.Count - 1]) == tabla[x, 0])
-						{
-							count1 = x;
-						}
-					}
-					for (int x = 1; x < tabla.GetLength(1); x++)
-					{
-						if (("" + cadena[cadena.Count - 1]) == tabla[0, x])
-						{
-							count2 = x;
-						}
-					}
-					Console.WriteLine(count1 + " " + count2);
-					if (tabla[count1, count2] != " ")
-					{
-						if (tabla[count1, count2] == "£")
-						{
-							cadenareglas.RemoveAt(cadenareglas.Count - 1);
+                if (("" + cadenareglas[cadenareglas.Count - 1]) != "$")
+                {
+                    for (int x = 1; x < matriz.GetLength(0); x++)
+                    {
+                        if (("" + cadenareglas[cadenareglas.Count - 1]) == matriz[x, 0])
+                        {
+                            count1 = x;
+                        }
+                    }
+                    for (int x = 1; x < matriz.GetLength(1); x++)
+                    {
+                        if (("" + cadena[cadena.Count - 1]) == matriz[0, x])
+                        {
+                            count2 = x;
+                        }
+                    }
+                    //Console.WriteLine(count1 + " " + count2);
+                    
+                    if (matriz[count1, count2] != " ")
+                    {
 
-						}
-						else
-						{
-							bool ver = true;
-							for (int y = 0; y < tabla.GetLength(1); y++)
-							{
-								if (tabla[0, y] == tabla[count1, count2])
-								{
-									ver = false;
-								}
-							}
-							if (!ver)
-							{
-								cadenareglas.RemoveAt(cadenareglas.Count - 1);
-								cadenareglas.Add(tabla[count1, count2]);
-							}
-							else
-							{
-								cadenareglas.RemoveAt(cadenareglas.Count - 1);
 
-								for (int x = tabla[count1, count2].Length - 1; x >= 0; x--)
-								{
-									cadenareglas.Add("" + tabla[count1, count2][x]);
-								}
-							}
-							if (cadenareglas[cadenareglas.Count - 1] == cadena[cadena.Count - 1])
-							{
-								cadenareglas.RemoveAt(cadenareglas.Count - 1);
-								cadena.RemoveAt(cadena.Count - 1);
+                        if (matriz[count1, count2] == "€")
+                        {
+                            cadenareglas.RemoveAt(cadenareglas.Count - 1);
 
-							}
-						}
-					}
-					else
-					{
-						seguir_camino = !seguir_camino;
-					}
+                        }
+                        else
+                        {
+                            bool ver = true;
+                            for (int y = 0; y < matriz.GetLength(1); y++)
+                            {
+                                if (matriz[0, y] == matriz[count1, count2])
+                                {
+                                    ver = false;
+                                }
+                            }
+                            if (!ver)
+                            {
+                                cadenareglas.RemoveAt(cadenareglas.Count - 1);
+                                cadenareglas.Add(matriz[count1, count2]);
+                            }
+                            else
+                            {
+                                cadenareglas.RemoveAt(cadenareglas.Count - 1);
 
-				}
-				else
-				{
-					seguir_camino = !seguir_camino;
-				}
-			}
+                                for (int x = matriz[count1, count2].Length - 1; x >= 0; x--)
+                                {
+                                    cadenareglas.Add("" + matriz[count1, count2][x]);
+                                }
+                            }
+                            if (cadenareglas[cadenareglas.Count - 1] == cadena[cadena.Count - 1])
+                            {
+                                cadenareglas.RemoveAt(cadenareglas.Count - 1);
+                                cadena.RemoveAt(cadena.Count - 1);
 
-			if (cadenareglas[cadenareglas.Count - 1] == "$" && cadena[cadena.Count - 1] == "$")
-			{
-				Console.WriteLine("cadena aceptada ");
+                            }
+                        }
+                    }
+                    else
+                    {
+                        seguir_camino = !seguir_camino;
+                    }
 
-			}
-			else
-			{
-				Console.WriteLine("error en " + cadena[cadena.Count - 1]);
-			}
-		}
+                }
+                else
+                {
+                    seguir_camino = !seguir_camino;
+                }
+            }
 
-		public List<String> Configurarcadena(String[] cadena)
+            if (cadenareglas[cadenareglas.Count - 1] == "$" && cadena[cadena.Count - 1] == "$")
+            {
+                return true;
+            }
+
+            else
+            {
+                Console.WriteLine("Error en '" + cadena[cadena.Count - 1] + "' fila: " + fila + " ," + (longitud - cadena.Count));
+                return false;
+            }
+        }
+
+        public List<String> Configurarcadena(String[] cadena)
 		{
 			List<String> cadenanueva = new List<string>();
 			cadenanueva.Add("$");

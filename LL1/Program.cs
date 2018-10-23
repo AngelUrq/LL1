@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -17,13 +18,38 @@ namespace LL1
             
             AnalizadorSintacticoLL1 analizador = new AnalizadorSintacticoLL1();
 
-            string[] cadena = { "(", "a", ")" };
+            string[] cadenas = LeerArchivo("../../entrada.txt").Split('\n');
 
-            analizador.Probarcadena(analizador.Configurarcadena(cadena));
+            bool aceptado = true;
+            for(int i = 0; i < cadenas.Length - 1; i++)
+            {
+                aceptado = aceptado && analizador.Probarcadena(analizador.tabla, analizador.Configurarcadena(cadenas[i].Split(' ')),i + 1, cadenas[i].Length);  
+            }
 
+            if (aceptado)
+            {
+                Console.WriteLine("Cadena aceptada");
+            }
 
             Console.ReadKey();
         }
-        
+
+        public static string LeerArchivo(string direccionArchivo)
+        {
+            string cadena = "";
+
+            FileStream fileStream = new FileStream(direccionArchivo, FileMode.Open, FileAccess.Read);
+            using (StreamReader streamReader = new StreamReader(fileStream, Encoding.UTF8))
+            {
+                string line;
+                while ((line = streamReader.ReadLine()) != null)
+                {
+                    cadena+=line + "\n";
+                }
+            }
+
+            return cadena;
+        }
+
     }
 }
