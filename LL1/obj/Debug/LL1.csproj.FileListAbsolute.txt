@@ -12,3 +12,10 @@ C:\Users\Pc\Source\Repos\LL12\LL1\obj\Debug\LL1.csproj.CoreCompileInputs.cache
 C:\Users\Pc\Source\Repos\LL12\LL1\obj\Debug\LL1.exe
 C:\Users\Pc\Source\Repos\LL12\LL1\obj\Debug\LL1.pdb
 C:\Users\Angel\source\repos\LL1\LL1\obj\Debug\LL1.csprojResolveAssemblyReference.cache
+C:\Users\Adriana Orellana\source\repos\LL1\LL1\obj\Debug\LL1.csprojAssemblyReference.cache
+C:\Users\Adriana Orellana\source\repos\LL1\LL1\obj\Debug\LL1.csproj.CoreCompileInputs.cache
+C:\Users\Adriana Orellana\source\repos\LL1\LL1\obj\Debug\LL1.exe
+C:\Users\Adriana Orellana\source\repos\LL1\LL1\obj\Debug\LL1.pdb
+C:\Users\Adriana Orellana\source\repos\LL1\LL1\bin\Debug\LL1.exe.config
+C:\Users\Adriana Orellana\source\repos\LL1\LL1\bin\Debug\LL1.exe
+C:\Users\Adriana Orellana\source\repos\LL1\LL1\bin\Debug\LL1.pdb

@@ -523,19 +523,19 @@ namespace LL1
             int numeroColumna = 0;
             int numeroFila = 0;
 
-            foreach (string primero in primeros)
+            foreach (Produccion produccionDePrimero in primeros)
             {
-                string p = primero.Substring(3, primero.Length - 3);
-                string noTermPrimeros = primero.Substring(0, 1);
-                prim.Add(p);
+                string primero = produccionDePrimero.GetLadoDerecho();
+                string noTermPrimeros = produccionDePrimero.GetLadoIzquierdo();
+                prim.Add(primero);
                 noTerminalesPrimeros.Add(noTermPrimeros);
             }
 
-            foreach (string siguiente in siguientes)
+            foreach (Produccion produccionSiguiente in siguientes)
             {
-                string s = siguiente.Substring(0, 1);
-                string noTermSiguientes = siguiente.Substring(3, siguiente.Length - 3);
-                noTerminalesSiguientes.Add(s);
+                string siguiente = produccionSiguiente.GetLadoIzquierdo();
+                string noTermSiguientes = produccionSiguiente.GetLadoDerecho();
+                noTerminalesSiguientes.Add(siguiente);
                 listaDeLosSiguientes.Add(noTermSiguientes);
             }
 
@@ -643,7 +643,6 @@ namespace LL1
                 }
                 else
                 {
-                    //Al encontrar un terminal en la produccion busca la posicion  en la tabla que le corresponde 
                     for (int i = 0; i < tabla.GetLength(0); i++)
                     {
                         if (i == 0)
