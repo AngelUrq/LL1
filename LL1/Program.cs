@@ -17,6 +17,11 @@ namespace LL1
             
             AnalizadorSintacticoLL1 analizador = new AnalizadorSintacticoLL1();
 
+            string[] cadena = { "(", "a", ")" };
+
+            analizador.Probarcadena(analizador.Configurarcadena(cadena));
+
+
             Console.ReadKey();
         }
         

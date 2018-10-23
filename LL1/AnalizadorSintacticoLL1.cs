@@ -702,6 +702,117 @@ namespace LL1
                 siguientes.Add(new Produccion(noTerminal, ""));
             }
         }
+        
+		public void Probarcadena(List<String> cadena)
+		{
+			//inicia con el simbolo inicial modificar el simbolo inicial a probar
+			List<String> cadenareglas = new List<string>();
+			cadenareglas.Add("$");
+			//simbolo inicial
+			cadenareglas.Add(simboloInicial);
 
-    }
+			bool seguir_camino = true;
+
+			while (seguir_camino)
+			{
+				int count1 = 0;
+				int count2 = 0;
+
+                if(cadenareglas[cadenareglas.Count-1] == cadena[cadena.Count - 1])
+                {
+                    cadenareglas.RemoveAt(cadenareglas.Count - 1);
+                    cadena.RemoveAt(cadena.Count - 1);
+                }
+
+				if (("" + cadenareglas[cadenareglas.Count - 1]) != "$")
+				{
+					for (int x = 1; x < tabla.GetLength(0); x++)
+					{
+						if (("" + cadenareglas[cadenareglas.Count - 1]) == tabla[x, 0])
+						{
+							count1 = x;
+						}
+					}
+					for (int x = 1; x < tabla.GetLength(1); x++)
+					{
+						if (("" + cadena[cadena.Count - 1]) == tabla[0, x])
+						{
+							count2 = x;
+						}
+					}
+					Console.WriteLine(count1 + " " + count2);
+					if (tabla[count1, count2] != " ")
+					{
+						if (tabla[count1, count2] == "£")
+						{
+							cadenareglas.RemoveAt(cadenareglas.Count - 1);
+
+						}
+						else
+						{
+							bool ver = true;
+							for (int y = 0; y < tabla.GetLength(1); y++)
+							{
+								if (tabla[0, y] == tabla[count1, count2])
+								{
+									ver = false;
+								}
+							}
+							if (!ver)
+							{
+								cadenareglas.RemoveAt(cadenareglas.Count - 1);
+								cadenareglas.Add(tabla[count1, count2]);
+							}
+							else
+							{
+								cadenareglas.RemoveAt(cadenareglas.Count - 1);
+
+								for (int x = tabla[count1, count2].Length - 1; x >= 0; x--)
+								{
+									cadenareglas.Add("" + tabla[count1, count2][x]);
+								}
+							}
+							if (cadenareglas[cadenareglas.Count - 1] == cadena[cadena.Count - 1])
+							{
+								cadenareglas.RemoveAt(cadenareglas.Count - 1);
+								cadena.RemoveAt(cadena.Count - 1);
+
+							}
+						}
+					}
+					else
+					{
+						seguir_camino = !seguir_camino;
+					}
+
+				}
+				else
+				{
+					seguir_camino = !seguir_camino;
+				}
+			}
+
+			if (cadenareglas[cadenareglas.Count - 1] == "$" && cadena[cadena.Count - 1] == "$")
+			{
+				Console.WriteLine("cadena aceptada ");
+
+			}
+			else
+			{
+				Console.WriteLine("error en " + cadena[cadena.Count - 1]);
+			}
+		}
+
+		public List<String> Configurarcadena(String[] cadena)
+		{
+			List<String> cadenanueva = new List<string>();
+			cadenanueva.Add("$");
+			for (int x = cadena.Length - 1; x >= 0; x--)
+			{
+				cadenanueva.Add(cadena[x]);
+			}
+			return cadenanueva;
+		}
+
+	}
 }
