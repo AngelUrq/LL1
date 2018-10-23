@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace LL1
@@ -13,7 +14,7 @@ namespace LL1
         {
             Console.OutputEncoding = Encoding.UTF8;
             Console.WriteLine("Iniciando analizador sintáctico LL1...");
-
+            
             AnalizadorSintacticoLL1 analizador = new AnalizadorSintacticoLL1();
 
             Console.ReadKey();

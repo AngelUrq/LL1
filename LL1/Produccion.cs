@@ -23,9 +23,19 @@ namespace LL1
             return ladoIzquierdo;
         }
 
+        public void SetLadoDerecho(string ladoDerecho)
+        {
+            this.ladoDerecho = ladoDerecho;
+        }
+
         public string GetLadoDerecho()
         {
             return ladoDerecho;
+        }
+
+        public override string ToString()
+        {
+            return ladoIzquierdo + "->" + ladoDerecho;
         }
 
     }

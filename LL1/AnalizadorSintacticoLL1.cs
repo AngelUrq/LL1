@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace LL1
@@ -14,36 +15,29 @@ namespace LL1
 
         private List<string> terminales;
         private List<string> noTerminales;
+        private string simboloInicial;
 
-        public static string[] Resultado;
-        public static char[] noTerminalesChar;
-
-        private List<string> primeros;
-        private List<string> siguientes;
-
-        int posicion = 0;
-        int posicionfinal = 0;
-
-        string HayTerminal = "false";
-        string HayEpsilon = "false";
+        private List<Produccion> primeros;
+        private List<Produccion> siguientes;
 
         private string[,] tabla;
 
         public AnalizadorSintacticoLL1()
         {
-            primeros = new List<string>();
-            siguientes = new List<string>();
+            primeros = new List<Produccion>();
+            siguientes = new List<Produccion>();
             terminales = new List<string>();
             noTerminales = new List<string>();
 
             IniciarProducciones();
             CalcularPrimeros();
+            CalcularSiguientes();
 
-            /*tabla = new string[noTerminales.Count + 1, terminales.Count + 2];
+            tabla = new string[noTerminales.Count + 1, terminales.Count + 2];
 
             InicializarTabla();
             RellenarTabla();
-            MostrarMatriz();*/
+            MostrarMatriz();
         }
 
         public List<Produccion> Factorizar_izquierda()
@@ -89,7 +83,6 @@ namespace LL1
 
             for (int x = 0; x < producciones.Count; x++)
             {
-                int posicion = 0;
                 Boolean ver = true;
 
                 for (int y = 0; y < producciones[x].Count; y++)
@@ -183,6 +176,7 @@ namespace LL1
             }
             return nuevasreglas;
         }
+
         public void Ver_repetido(String iz, String ld)
         {
             bool ver = true;
@@ -199,6 +193,7 @@ namespace LL1
                 nuevasreglas.Add(new Produccion(iz, ld));
             }
         }
+
         public Boolean Ver_repetidonum(List<int> lista, int num)
         {
             bool ver = true;
@@ -212,9 +207,9 @@ namespace LL1
             return ver;
         }
 
-        string a = "";
         private void EliminarRecursividadIzquierda()
         {
+            string a = "";
             string cadena1 = "";
             for (int i = 0; i < listaProducciones.Count; i++)
             {
@@ -233,105 +228,236 @@ namespace LL1
             }
         }
 
-
         private void CalcularPrimeros()
         {
-            posicion = 0;
-            posicionfinal = noTerminales.Count;
-            noTerminalesChar = string.Join(string.Empty, noTerminales).ToCharArray();
-
-            for (int i = 0; i < terminales.Count; i++)
+            foreach (Produccion produccion in listaProducciones)
             {
-                char[] characters = terminales[i].ToCharArray();
-                char[] charaux;
-                char[] charaux2;
+                string primerElementoLadoDerecho = produccion.GetLadoDerecho()[0].ToString();
 
-                if (posicion == 0)
+                if (Pertenece(primerElementoLadoDerecho, terminales))
                 {
-                    for (int j = 0; j < characters.Length; j++)
+                    AgregarLista(primeros, primerElementoLadoDerecho, produccion.GetLadoIzquierdo());
+                    BuscarEpsilonPrimero(produccion.GetLadoIzquierdo());
+                }
+                else if (Pertenece(primerElementoLadoDerecho, noTerminales))
+                {
+                    CalcularPrimeroNoTerminal(produccion.GetLadoIzquierdo(), primerElementoLadoDerecho);
+                }
+            }
+
+            Console.WriteLine("Primeros...");
+            foreach (Produccion primero in primeros)
+            {
+                Console.WriteLine(primero.ToString());
+            }
+        }
+
+        private void CalcularPrimeroNoTerminal(string ladoIzquierdo, string noTerminal)
+        {
+            foreach (Produccion produccion in listaProducciones)
+            {
+                if (produccion.GetLadoIzquierdo().Equals(noTerminal))
+                {
+                    if (Pertenece(produccion.GetLadoDerecho()[0].ToString(), terminales))
                     {
-                        Console.WriteLine(characters[j]);
-                        Console.WriteLine("P ( " + noTerminales[i] + " ) = {");
-                        if (Char.IsUpper(characters[j])) //Verifica si el primer caracter es No Terminal   
-                        {
-                            for (int s = 0; s < noTerminales.Count; s++) //Recorre los No terminales
-                            {
-                                if (characters[0].Equals(noTerminalesChar[s]))//Recorre para encontrar el noterminal con el que se encontro
-                                {
-                                    charaux = terminales[s].ToCharArray();
-                                    for (int ca = 0; ca < charaux.Length; ca++)
-                                    {
-                                        if (Char.IsUpper(charaux[ca]))
-                                        {
-                                            for (int s1 = 0; s1 < noTerminales.Count; s1++) //Recorre los No terminales
-                                            {
-                                                if (charaux[ca].Equals(noTerminalesChar[s1]))
-                                                {
-                                                    charaux2 = terminales[s1].ToCharArray();
-                                                    for (int caa = 0; caa < charaux2.Length; caa++)
-                                                    {
-
-                                                        if (Char.IsLower(charaux2[caa]) && charaux2[caa] != '€')
-                                                        {
-                                                            Console.WriteLine(charaux2[caa]);
-
-                                                        }
-                                                        else if (charaux2[caa].Equals('€'))
-                                                        {
-                                                            HayEpsilon = "true";
-                                                        }
-
-
-                                                    }
-                                                }
-
-                                            }
-                                        }
-                                        else if (Char.IsUpper(charaux[ca]) && HayEpsilon.Equals("true"))
-                                        {
-                                            Console.WriteLine(characters[j]);
-                                            HayEpsilon = "false";
-                                        }
-                                        else if (Char.IsLower(charaux[ca]))
-                                        {
-                                            Console.WriteLine(charaux[ca]);
-                                            HayEpsilon = "false";
-                                        }
-                                        else if (charaux[ca].Equals('€'))
-                                        {
-                                            HayEpsilon = "true";
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        //En el caso que la siguiente sea terminal y se haya encontrado un epsilon
-                        else if (Char.IsUpper(characters[j]) && HayEpsilon.Equals("true"))
-                        {
-                            Console.WriteLine(characters[j]);
-                            HayEpsilon = "false";
-                        }
-                        else if (Char.IsLower(characters[j]) || characters[j].Equals('e')) //e se clasifica como epsilon
-                        {
-                            Console.WriteLine(characters[j]);
-                            HayEpsilon = "false";
-                        }
-                        else if (Char.IsLower(characters[j]))
-                        {
-                            Console.WriteLine(characters[j]);
-                        }
-
-                        Console.WriteLine("}");
+                        AgregarLista(primeros, produccion.GetLadoDerecho()[0].ToString(), ladoIzquierdo);
+                    }
+                    else if (Pertenece(produccion.GetLadoDerecho()[0].ToString(), noTerminales))
+                    {
+                        CalcularPrimeroNoTerminal(ladoIzquierdo, produccion.GetLadoDerecho()[0].ToString());
                     }
                 }
-
-
             }
+        }
+
+        private void AgregarLista(List<Produccion> lista, string simbolo, string ladoIzquierdo)
+        {
+            foreach (Produccion produccion in lista)
+            {
+                if (produccion.GetLadoIzquierdo().Equals(ladoIzquierdo))
+                {
+                    string nuevoLadoDerecho = produccion.GetLadoDerecho();
+                    if (!produccion.GetLadoDerecho().Equals(""))
+                    {
+                        nuevoLadoDerecho += ",";
+                    }
+
+                    produccion.SetLadoDerecho(nuevoLadoDerecho + simbolo);
+                    break;
+                }
+            }
+        }
+
+        private void BuscarEpsilonPrimero(string ladoIzquierdo)
+        {
+            foreach (Produccion produccion in listaProducciones)
+            {
+                if (ladoIzquierdo.Equals(produccion.GetLadoIzquierdo()) && produccion.GetLadoDerecho().Equals("€"))
+                {
+                    AgregarLista(primeros, "€", ladoIzquierdo);
+                    break;
+                }
+            }
+        }
+
+        private bool Pertenece(string elemento, List<string> lista)
+        {
+            foreach (string elementoLista in lista)
+            {
+                if (elemento.Equals(elementoLista))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         private void CalcularSiguientes()
         {
-            //Parte de Diego
+            AgregarLista(siguientes, "$", simboloInicial);
+
+            foreach (Produccion produccion in listaProducciones)
+            {
+                if (produccion.GetLadoDerecho().Length == 3)
+                {
+                    AgregarSiguienteS1(produccion.GetLadoDerecho()[1].ToString(), produccion.GetLadoDerecho()[2].ToString());
+
+                    if (DerivaEnEpsilon(produccion.GetLadoDerecho()[2].ToString()))
+                    {
+                        AgregarSiguienteS2(produccion.GetLadoDerecho()[1].ToString(), produccion.GetLadoIzquierdo());
+                    }
+                }
+
+                if (produccion.GetLadoDerecho().Length == 2)
+                {
+                    AgregarSiguienteS2(produccion.GetLadoDerecho()[1].ToString(), produccion.GetLadoIzquierdo());
+                }
+            }
+
+            ReemplazarSiguientes();
+
+            Console.WriteLine("Siguientes...");
+            foreach (Produccion siguiente in siguientes)
+            {
+                Console.WriteLine(siguiente.ToString());
+            }
+        }
+        
+        private void ReemplazarSiguientes()
+        {
+            bool seguirReemplazando = false;
+            do
+            {
+                seguirReemplazando = false;
+
+                foreach (Produccion siguiente in siguientes)
+                {
+                    string[] listaSiguientes = siguiente.GetLadoDerecho().Split(',');
+                    
+                    for (int i = 0; i < listaSiguientes.Length; i++)
+                    {
+                        if (Regex.IsMatch(listaSiguientes[i], "S\\([A-Z]\\)"))
+                        {
+                            seguirReemplazando = true;
+
+                            Produccion siguientes = BuscarSiguientes(listaSiguientes[i][2].ToString());
+
+                            siguiente.SetLadoDerecho(siguiente.GetLadoDerecho().Replace(listaSiguientes[i], siguientes.GetLadoDerecho()));
+                        }
+                    }
+                }
+
+            } while (seguirReemplazando);
+        }
+
+        private void AgregarSiguienteS1(string izquierda, string derecha)
+        {
+            Produccion primerosDerecha = BuscarPrimeros(derecha);
+
+            if (primerosDerecha != null)
+            {
+                string[] listaPrimeros = primerosDerecha.GetLadoDerecho().Split(',');
+
+                for (int i = 0; i < listaPrimeros.Length; i++)
+                {
+                    if (!listaPrimeros[i].Equals("€"))
+                    {
+                        AgregarLista(siguientes, listaPrimeros[i], izquierda);
+                    }
+                }
+            }
+            else if (Pertenece(derecha, terminales))
+            {
+                if (!ExisteEn(BuscarSiguientes(izquierda).GetLadoDerecho().Split(','),derecha))
+                {
+                    AgregarLista(siguientes, derecha, izquierda);
+                }
+            }
+        }
+
+        private bool ExisteEn(string[] lista, string elemento)
+        {
+            for(int i = 0; i < lista.Length; i++)
+            {
+                if (elemento.Equals(lista[i]))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private void AgregarSiguienteS2(string izquierda, string derecha)
+        {
+            AgregarLista(siguientes, "S(" + derecha + ")", izquierda);
+        }
+
+        private bool DerivaEnEpsilon(string noTerminal)
+        {
+            Produccion primerosNoTerminal = BuscarPrimeros(noTerminal);
+
+            if (primerosNoTerminal != null)
+            {
+                string[] listaPrimeros = primerosNoTerminal.GetLadoDerecho().Split(',');
+
+                for (int i = 0; i < listaPrimeros.Length; i++)
+                {
+                    if (listaPrimeros[i].Equals("€"))
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        private Produccion BuscarPrimeros(string noTerminal)
+        {
+            foreach (Produccion produccion in primeros)
+            {
+                if (produccion.GetLadoIzquierdo().Equals(noTerminal))
+                {
+                    return produccion;
+                }
+            }
+
+            return null;
+        }
+
+        private Produccion BuscarSiguientes(string noTerminal)
+        {
+            foreach (Produccion produccion in siguientes)
+            {
+                if (produccion.GetLadoIzquierdo().Equals(noTerminal))
+                {
+                    return produccion;
+                }
+            }
+
+            return null;
         }
 
         public void InicializarTabla()
@@ -386,7 +512,7 @@ namespace LL1
                 Console.WriteLine();
             }
         }
-
+        
         public void RellenarTabla()
         {
             List<string> prim = new List<string>();
@@ -544,25 +670,38 @@ namespace LL1
             }
         }
 
-
         private void IniciarProducciones()
         {
             listaProducciones = new List<Produccion>();
-            listaProducciones.Add(new Produccion("S", "Aa"));
-            listaProducciones.Add(new Produccion("A", "BD"));
-            listaProducciones.Add(new Produccion("B", "b"));
-            listaProducciones.Add(new Produccion("B", "€"));
-            listaProducciones.Add(new Produccion("B", "b"));
-            listaProducciones.Add(new Produccion("B", "€"));
+            listaProducciones.Add(new Produccion("S", "(A)"));
+            listaProducciones.Add(new Produccion("S", "€"));
+            listaProducciones.Add(new Produccion("A", "TE"));
+            listaProducciones.Add(new Produccion("E", "&TE"));
+            listaProducciones.Add(new Produccion("E", "€"));
+            listaProducciones.Add(new Produccion("T", "(A)"));
+            listaProducciones.Add(new Produccion("T", "a"));
+            listaProducciones.Add(new Produccion("T", "b"));
+            listaProducciones.Add(new Produccion("T", "c"));
 
-            terminales.Add("a");
             terminales.Add("b");
-            terminales.Add("d");
+            terminales.Add("a");
+            terminales.Add("c");
+            terminales.Add("&");
+            terminales.Add("(");
+            terminales.Add(")");
 
             noTerminales.Add("S");
             noTerminales.Add("A");
-            noTerminales.Add("B");
-            noTerminales.Add("D");
+            noTerminales.Add("E");
+            noTerminales.Add("T");
+
+            simboloInicial = "S";
+
+            foreach (string noTerminal in noTerminales)
+            {
+                primeros.Add(new Produccion(noTerminal, ""));
+                siguientes.Add(new Produccion(noTerminal, ""));
+            }
         }
 
     }
