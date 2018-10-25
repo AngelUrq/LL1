@@ -1,17 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace LL1
 {
     class AnalizadorSintacticoLL1
     {
 
-        List<Produccion> listaProducciones;
-        List<Produccion> nuevasreglas = new List<Produccion>();
+        private List<Produccion> listaProducciones;
+        private List<Produccion> nuevasreglas = new List<Produccion>();
 
         private List<string> terminales;
         private List<string> noTerminales;
@@ -29,10 +26,12 @@ namespace LL1
             terminales = new List<string>();
             noTerminales = new List<string>();
 
+            //Factorizar();
+
             IniciarProducciones();
             CalcularPrimeros();
             CalcularSiguientes();
-
+            
             tabla = new string[noTerminales.Count + 1, terminales.Count + 2];
 
             InicializarTabla();
@@ -40,7 +39,29 @@ namespace LL1
             MostrarMatriz();
         }
 
-        public List<Produccion> Factorizar_izquierda()
+        void Factorizar()
+        {
+            List<Produccion> reglas = new List<Produccion>();
+            List<Produccion> reglas2 = new List<Produccion>();
+            reglas.Add(new Produccion("S", "BD"));
+            reglas.Add(new Produccion("S", "B"));
+            reglas.Add(new Produccion("A", "cxss"));
+            reglas.Add(new Produccion("A", "cBDa"));
+            reglas.Add(new Produccion("A", "asDs"));
+            reglas.Add(new Produccion("A", "aqD"));
+            reglas.Add(new Produccion("A", "a"));
+            reglas.Add(new Produccion("A", "auuqD"));
+            reglas.Add(new Produccion("A", "apqD"));
+            
+            reglas2 = Factorizar_izquierda(reglas);
+
+            foreach (Produccion regla in reglas2)
+            {
+                Console.WriteLine(regla.ToString());
+            }
+        }
+
+        public List<Produccion> Factorizar_izquierda(List<Produccion> listaProducciones)
         {
             List<List<String>> produccionestotal = new List<List<String>>();
             List<String> producciones = new List<String>();
@@ -245,11 +266,12 @@ namespace LL1
                 }
             }
 
-            Console.WriteLine("Primeros...");
+            Console.WriteLine("----------------PRIMEROS----------------");
             foreach (Produccion primero in primeros)
             {
                 Console.WriteLine(primero.ToString());
             }
+            Console.WriteLine("----------------------------------------");
         }
 
         private void CalcularPrimeroNoTerminal(string ladoIzquierdo, string noTerminal)
@@ -337,13 +359,14 @@ namespace LL1
 
             ReemplazarSiguientes();
 
-            Console.WriteLine("Siguientes...");
+            Console.WriteLine("----------------SIGUIENTES--------------");
             foreach (Produccion siguiente in siguientes)
             {
                 Console.WriteLine(siguiente.ToString());
             }
+            Console.WriteLine("----------------------------------------");
         }
-        
+
         private void ReemplazarSiguientes()
         {
             bool seguirReemplazando = false;
@@ -354,7 +377,7 @@ namespace LL1
                 foreach (Produccion siguiente in siguientes)
                 {
                     string[] listaSiguientes = siguiente.GetLadoDerecho().Split(',');
-                    
+
                     for (int i = 0; i < listaSiguientes.Length; i++)
                     {
                         if (Regex.IsMatch(listaSiguientes[i], "S\\([A-Z]\\)"))
@@ -389,7 +412,7 @@ namespace LL1
             }
             else if (Pertenece(derecha, terminales))
             {
-                if (!ExisteEn(BuscarSiguientes(izquierda).GetLadoDerecho().Split(','),derecha))
+                if (!ExisteEn(BuscarSiguientes(izquierda).GetLadoDerecho().Split(','), derecha))
                 {
                     AgregarLista(siguientes, derecha, izquierda);
                 }
@@ -398,7 +421,7 @@ namespace LL1
 
         private bool ExisteEn(string[] lista, string elemento)
         {
-            for(int i = 0; i < lista.Length; i++)
+            for (int i = 0; i < lista.Length; i++)
             {
                 if (elemento.Equals(lista[i]))
                 {
@@ -503,6 +526,7 @@ namespace LL1
 
         public void MostrarMatriz()
         {
+            Console.WriteLine("----------------TABLA-------------------");
             for (int i = 0; i < tabla.GetLength(0); i++)
             {
                 for (int j = 0; j < tabla.GetLength(1); j++)
@@ -511,8 +535,9 @@ namespace LL1
                 }
                 Console.WriteLine();
             }
+            Console.WriteLine("----------------------------------------");
         }
-        
+
         public void RellenarTabla()
         {
             List<string> prim = new List<string>();
@@ -681,21 +706,28 @@ namespace LL1
             listaProducciones.Add(new Produccion("T", "a"));
             listaProducciones.Add(new Produccion("T", "b"));
             listaProducciones.Add(new Produccion("T", "c"));
-            
+
+            Console.WriteLine("--------------PRODUCCIONES--------------");
+            foreach (Produccion produccion in listaProducciones)
+            {
+                Console.WriteLine(produccion.ToString());
+            }
+            Console.WriteLine("----------------------------------------");
+
             terminales.Add("b");
             terminales.Add("a");
             terminales.Add("c");
             terminales.Add("&");
             terminales.Add("(");
             terminales.Add(")");
-            
+
             noTerminales.Add("S");
             noTerminales.Add("A");
             noTerminales.Add("E");
             noTerminales.Add("T");
 
             simboloInicial = "S";
-            
+
             foreach (string noTerminal in noTerminales)
             {
                 primeros.Add(new Produccion(noTerminal, ""));
@@ -740,46 +772,51 @@ namespace LL1
                         }
                     }
                     //Console.WriteLine(count1 + " " + count2);
-                    
-                    if (matriz[count1, count2] != " ")
+                    if (count2 != 0)
                     {
-
-
-                        if (matriz[count1, count2] == "€")
+                        if (matriz[count1, count2] != " ")
                         {
-                            cadenareglas.RemoveAt(cadenareglas.Count - 1);
 
-                        }
-                        else
-                        {
-                            bool ver = true;
-                            for (int y = 0; y < matriz.GetLength(1); y++)
-                            {
-                                if (matriz[0, y] == matriz[count1, count2])
-                                {
-                                    ver = false;
-                                }
-                            }
-                            if (!ver)
+
+                            if (matriz[count1, count2] == "€")
                             {
                                 cadenareglas.RemoveAt(cadenareglas.Count - 1);
-                                cadenareglas.Add(matriz[count1, count2]);
+
                             }
                             else
                             {
-                                cadenareglas.RemoveAt(cadenareglas.Count - 1);
-
-                                for (int x = matriz[count1, count2].Length - 1; x >= 0; x--)
+                                bool ver = true;
+                                for (int y = 0; y < matriz.GetLength(1); y++)
                                 {
-                                    cadenareglas.Add("" + matriz[count1, count2][x]);
+                                    if (matriz[0, y] == matriz[count1, count2])
+                                    {
+                                        ver = false;
+                                    }
+                                }
+                                if (!ver)
+                                {
+                                    cadenareglas.RemoveAt(cadenareglas.Count - 1);
+                                    cadenareglas.Add(matriz[count1, count2]);
+                                }
+                                else
+                                {
+                                    cadenareglas.RemoveAt(cadenareglas.Count - 1);
+
+                                    for (int x = matriz[count1, count2].Length - 1; x >= 0; x--)
+                                    {
+                                        cadenareglas.Add("" + matriz[count1, count2][x]);
+                                    }
+                                }
+                                if (cadenareglas[cadenareglas.Count - 1] == cadena[cadena.Count - 1])
+                                {
+                                    cadenareglas.RemoveAt(cadenareglas.Count - 1);
+                                    cadena.RemoveAt(cadena.Count - 1);
                                 }
                             }
-                            if (cadenareglas[cadenareglas.Count - 1] == cadena[cadena.Count - 1])
-                            {
-                                cadenareglas.RemoveAt(cadenareglas.Count - 1);
-                                cadena.RemoveAt(cadena.Count - 1);
-
-                            }
+                        }
+                        else
+                        {
+                            seguir_camino = !seguir_camino;
                         }
                     }
                     else
@@ -801,21 +838,21 @@ namespace LL1
 
             else
             {
-                Console.WriteLine("Error en '" + cadena[cadena.Count - 1] + "' fila: " + fila + " ," + (longitud - cadena.Count));
+                Console.WriteLine("Error en '" + cadena[cadena.Count - 1] + "' fila: " + fila + "," + (longitud - cadena.Count));
                 return false;
             }
         }
 
         public List<String> Configurarcadena(String[] cadena)
-		{
-			List<String> cadenanueva = new List<string>();
-			cadenanueva.Add("$");
-			for (int x = cadena.Length - 1; x >= 0; x--)
-			{
-				cadenanueva.Add(cadena[x]);
-			}
-			return cadenanueva;
-		}
+        {
+            List<String> cadenanueva = new List<string>();
+            cadenanueva.Add("$");
+            for (int x = cadena.Length - 1; x >= 0; x--)
+            {
+                cadenanueva.Add(cadena[x]);
+            }
+            return cadenanueva;
+        }
 
-	}
+    }
 }
