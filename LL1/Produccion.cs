@@ -8,34 +8,37 @@ namespace LL1
 {
     class Produccion
     {
-
-        private string ladoDerecho;
-        private string ladoIzquierdo;
-
-        public Produccion(string ladoIzquierdo, string ladoDerecho)
+        public string LadoIzquierdo { get; set; }
+        public Simbolo[] LadoDerecho { get; set; }
+        
+        public Produccion(string ladoIzquierdo, Simbolo[] ladoDerecho)
         {
-            this.ladoIzquierdo = ladoIzquierdo;
-            this.ladoDerecho = ladoDerecho;
-        }
-
-        public string GetLadoIzquierdo()
-        {
-            return ladoIzquierdo;
-        }
-
-        public void SetLadoDerecho(string ladoDerecho)
-        {
-            this.ladoDerecho = ladoDerecho;
+            LadoIzquierdo = ladoIzquierdo;
+            LadoDerecho = ladoDerecho;
         }
 
         public string GetLadoDerecho()
         {
-            return ladoDerecho;
+            string cadena = "";
+            for(int i = 0; i < LadoDerecho.Length; i++)
+            {
+                cadena += LadoDerecho[i].Nombre;
+                if (i != LadoDerecho.Length - 1)
+                {
+                    cadena += ",";
+                }
+            }
+            return cadena;
         }
 
         public override string ToString()
         {
-            return ladoIzquierdo + "->" + ladoDerecho;
+            string cadena = LadoIzquierdo + "->";
+            
+            for (int i = 0; i < LadoDerecho.Length; i++)
+                cadena += LadoDerecho[i].Nombre;
+
+            return cadena;
         }
 
     }

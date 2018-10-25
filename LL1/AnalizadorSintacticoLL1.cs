@@ -6,32 +6,29 @@ namespace LL1
 {
     class AnalizadorSintacticoLL1
     {
-
         private List<Produccion> listaProducciones;
-        private List<Produccion> nuevasreglas = new List<Produccion>();
 
         private List<string> terminales;
         private List<string> noTerminales;
+
         private string simboloInicial;
 
-        private List<Produccion> primeros;
-        private List<Produccion> siguientes;
+        private List<Conjunto> primeros;
+        private List<Conjunto> siguientes;
 
         public string[,] tabla;
 
         public AnalizadorSintacticoLL1()
         {
-            primeros = new List<Produccion>();
-            siguientes = new List<Produccion>();
+            primeros = new List<Conjunto>();
+            siguientes = new List<Conjunto>();
             terminales = new List<string>();
             noTerminales = new List<string>();
-
-            //Factorizar();
 
             IniciarProducciones();
             CalcularPrimeros();
             CalcularSiguientes();
-            
+
             tabla = new string[noTerminales.Count + 1, terminales.Count + 2];
 
             InicializarTabla();
@@ -39,235 +36,25 @@ namespace LL1
             MostrarMatriz();
         }
 
-        void Factorizar()
-        {
-            List<Produccion> reglas = new List<Produccion>();
-            List<Produccion> reglas2 = new List<Produccion>();
-            reglas.Add(new Produccion("S", "BD"));
-            reglas.Add(new Produccion("S", "B"));
-            reglas.Add(new Produccion("A", "cxss"));
-            reglas.Add(new Produccion("A", "cBDa"));
-            reglas.Add(new Produccion("A", "asDs"));
-            reglas.Add(new Produccion("A", "aqD"));
-            reglas.Add(new Produccion("A", "a"));
-            reglas.Add(new Produccion("A", "auuqD"));
-            reglas.Add(new Produccion("A", "apqD"));
-            
-            reglas2 = Factorizar_izquierda(reglas);
-
-            foreach (Produccion regla in reglas2)
-            {
-                Console.WriteLine(regla.ToString());
-            }
-        }
-
-        public List<Produccion> Factorizar_izquierda(List<Produccion> listaProducciones)
-        {
-            List<List<String>> produccionestotal = new List<List<String>>();
-            List<String> producciones = new List<String>();
-
-            bool ver = true;
-            producciones.Add("♣");
-            for (int x = 0; x < listaProducciones.Count; x++)
-            {
-                List<String> datos = new List<string>();
-                for (int y = 0; y < producciones.Count; y++)
-                {
-                    if (listaProducciones[x].GetLadoIzquierdo() == producciones[y])
-                    {
-                        ver = !ver;
-                    }
-                }
-                if (ver)
-                {
-                    producciones.Add(listaProducciones[x].GetLadoIzquierdo());
-                    for (int j = 0; j < listaProducciones.Count; j++)
-                    {
-                        if (producciones[producciones.Count - 1] == listaProducciones[j].GetLadoIzquierdo())
-                        {
-                            datos.Add(listaProducciones[j].GetLadoDerecho());
-                        }
-                    }
-                    produccionestotal.Add(datos);
-                }
-                ver = true;
-
-            }
-
-
-            return Reescribirreglas(producciones, produccionestotal);
-        }
-
-        public List<Produccion> Reescribirreglas(List<String> ld, List<List<String>> producciones)
-        {
-            List<Produccion> reglasrestantes = new List<Produccion>();
-
-            for (int x = 0; x < producciones.Count; x++)
-            {
-                Boolean ver = true;
-
-                for (int y = 0; y < producciones[x].Count; y++)
-                {
-                    for (int j = 0; j < producciones[x].Count; j++)
-                    {
-                        if (producciones[x][y][0] == producciones[x][j][0] && j != y)
-                        {
-                            ver = false;
-                            reglasrestantes.Add(new Produccion(ld[x + 1], producciones[x][y]));
-                        }
-                    }
-                    if (ver)
-                    {
-                        nuevasreglas.Add(new Produccion(ld[x + 1], producciones[x][y]));
-                        Console.WriteLine("regla a añadir " + ld[x + 1] + " " + producciones[x][y]);
-                    }
-                    ver = true;
-                }
-            }
-            List<Produccion> aux = new List<Produccion>();
-            String nuevaregla = "";
-            List<int> numeros = new List<int>();
-            for (int j = 0; j < reglasrestantes.Count; j++)
-            {
-                nuevaregla = "";
-                int countt = 0;
-                numeros.Add(123);
-                List<int> verificar = new List<int>();
-                if (Ver_repetidonum(numeros, j))
-                {
-                    numeros.Add(j);
-                    verificar.Add(j);
-                    for (int y = 0; y < reglasrestantes.Count; y++)
-                    {
-                        if (reglasrestantes[j].GetLadoDerecho()[0] == reglasrestantes[y].GetLadoDerecho()[0] &&
-                        reglasrestantes[j].GetLadoIzquierdo() == reglasrestantes[y].GetLadoIzquierdo() && j != y)
-                        {
-                            numeros.Add(y);
-                            verificar.Add(y);
-                            countt++;
-                        }
-                    }
-
-                    bool camino = true;
-                    int pos = 0;
-                    int n1 = 0;
-                    while (camino)
-                    {
-                        n1 = 0;
-                        for (int x = 0; x < verificar.Count; x++)
-                        {
-                            if (pos < reglasrestantes[j].GetLadoDerecho().Length && pos < reglasrestantes[verificar[x]].GetLadoDerecho().Length)
-                            {
-                                if (reglasrestantes[j].GetLadoDerecho()[pos] == reglasrestantes[verificar[x]].GetLadoDerecho()[pos])
-                                {
-                                    n1++;
-                                }
-                            }
-
-                        }
-
-                        if (n1 == (countt + 1))
-                        {
-                            nuevaregla += reglasrestantes[j].GetLadoDerecho()[pos];
-                            pos++;
-                        }
-                        else
-                        {
-                            camino = false;
-                        }
-
-                    }
-
-                }
-                if (nuevaregla != "")
-                {
-                    Ver_repetido(reglasrestantes[j].GetLadoIzquierdo(), nuevaregla + reglasrestantes[j].GetLadoIzquierdo());
-                    for (int h = 0; h < verificar.Count; h++)
-                    {
-                        if (reglasrestantes[verificar[h]].GetLadoDerecho().Length <= nuevaregla.Length || reglasrestantes[verificar[h]].GetLadoDerecho().Substring(nuevaregla.Length) == "")
-                        {
-                            Ver_repetido(reglasrestantes[j].GetLadoIzquierdo(), "£");
-                        }
-                        else
-                        {
-                            Ver_repetido(reglasrestantes[j].GetLadoIzquierdo(), reglasrestantes[verificar[h]].GetLadoDerecho().Substring(nuevaregla.Length));
-                        }
-                    }
-                }
-            }
-            return nuevasreglas;
-        }
-
-        public void Ver_repetido(String iz, String ld)
-        {
-            bool ver = true;
-            for (int x = 0; x < nuevasreglas.Count; x++)
-            {
-                if (nuevasreglas[x].GetLadoIzquierdo() == iz &&
-                           nuevasreglas[x].GetLadoDerecho() == ld)
-                {
-                    ver = !ver;
-                }
-            }
-            if (ver)
-            {
-                nuevasreglas.Add(new Produccion(iz, ld));
-            }
-        }
-
-        public Boolean Ver_repetidonum(List<int> lista, int num)
-        {
-            bool ver = true;
-            for (int x = 1; x < lista.Count; x++)
-            {
-                if (lista[x] == num)
-                {
-                    ver = !ver;
-                }
-            }
-            return ver;
-        }
-
-        private void EliminarRecursividadIzquierda()
-        {
-            string a = "";
-            string cadena1 = "";
-            for (int i = 0; i < listaProducciones.Count; i++)
-            {
-                cadena1 = cadena1 + listaProducciones[i].GetLadoIzquierdo().ToString() + "->" + listaProducciones[i].GetLadoDerecho().ToString() + "\n";
-            }
-
-            Clase_Separador cs = new Clase_Separador();
-            cs.Separar(cadena1);
-            for (int i = 0; i < cs.beta.Count; i++)
-            {
-                a = a + cs.alfa[i] + "->" + cs.beta[i] + "\n";
-            }
-            for (int i = 0; i < cs.nombreRegla.Count; i++)
-            {
-                a = a + cs.nombreRegla[i] + "->" + cs.resultado[i] + "\n";
-            }
-        }
-
         private void CalcularPrimeros()
         {
             foreach (Produccion produccion in listaProducciones)
             {
-                string primerElementoLadoDerecho = produccion.GetLadoDerecho()[0].ToString();
+                string primerElementoLadoDerecho = produccion.LadoDerecho[0].Nombre;
 
                 if (Pertenece(primerElementoLadoDerecho, terminales))
                 {
-                    AgregarLista(primeros, primerElementoLadoDerecho, produccion.GetLadoIzquierdo());
-                    BuscarEpsilonPrimero(produccion.GetLadoIzquierdo());
+                    AgregarLista(primeros, primerElementoLadoDerecho, produccion.LadoIzquierdo);
+                    BuscarEpsilonPrimero(produccion.LadoIzquierdo);
                 }
                 else if (Pertenece(primerElementoLadoDerecho, noTerminales))
                 {
-                    CalcularPrimeroNoTerminal(produccion.GetLadoIzquierdo(), primerElementoLadoDerecho);
+                    CalcularPrimeroNoTerminal(produccion.LadoIzquierdo, primerElementoLadoDerecho);
                 }
             }
 
             Console.WriteLine("----------------PRIMEROS----------------");
-            foreach (Produccion primero in primeros)
+            foreach (Conjunto primero in primeros)
             {
                 Console.WriteLine(primero.ToString());
             }
@@ -278,28 +65,28 @@ namespace LL1
         {
             foreach (Produccion produccion in listaProducciones)
             {
-                if (produccion.GetLadoIzquierdo().Equals(noTerminal))
+                if (produccion.LadoIzquierdo.Equals(noTerminal))
                 {
-                    if (Pertenece(produccion.GetLadoDerecho()[0].ToString(), terminales))
+                    if (Pertenece(produccion.LadoDerecho[0].Nombre, terminales))
                     {
-                        AgregarLista(primeros, produccion.GetLadoDerecho()[0].ToString(), ladoIzquierdo);
+                        AgregarLista(primeros, produccion.LadoDerecho[0].Nombre, ladoIzquierdo);
                     }
-                    else if (Pertenece(produccion.GetLadoDerecho()[0].ToString(), noTerminales))
+                    else if (Pertenece(produccion.LadoDerecho[0].ToString(), noTerminales))
                     {
-                        CalcularPrimeroNoTerminal(ladoIzquierdo, produccion.GetLadoDerecho()[0].ToString());
+                        CalcularPrimeroNoTerminal(ladoIzquierdo, produccion.LadoDerecho[0].Nombre);
                     }
                 }
             }
         }
 
-        private void AgregarLista(List<Produccion> lista, string simbolo, string ladoIzquierdo)
+        private void AgregarLista(List<Conjunto> lista, string simbolo, string ladoIzquierdo)
         {
-            foreach (Produccion produccion in lista)
+            foreach (Conjunto produccion in lista)
             {
-                if (produccion.GetLadoIzquierdo().Equals(ladoIzquierdo))
+                if (produccion.LadoIzquierdo.Equals(ladoIzquierdo))
                 {
-                    string nuevoLadoDerecho = produccion.GetLadoDerecho();
-                    if (!produccion.GetLadoDerecho().Equals(""))
+                    string nuevoLadoDerecho = produccion.LadoDerecho;
+                    if (!produccion.LadoDerecho.Equals(""))
                     {
                         nuevoLadoDerecho += ",";
                     }
@@ -314,7 +101,7 @@ namespace LL1
         {
             foreach (Produccion produccion in listaProducciones)
             {
-                if (ladoIzquierdo.Equals(produccion.GetLadoIzquierdo()) && produccion.GetLadoDerecho().Equals("€"))
+                if (ladoIzquierdo.Equals(produccion.LadoIzquierdo) && produccion.LadoDerecho[0].Nombre.Equals("€"))
                 {
                     AgregarLista(primeros, "€", ladoIzquierdo);
                     break;
@@ -341,26 +128,26 @@ namespace LL1
 
             foreach (Produccion produccion in listaProducciones)
             {
-                if (produccion.GetLadoDerecho().Length == 3)
+                if (produccion.LadoDerecho.Length == 3)
                 {
-                    AgregarSiguienteS1(produccion.GetLadoDerecho()[1].ToString(), produccion.GetLadoDerecho()[2].ToString());
+                    AgregarSiguienteS1(produccion.LadoDerecho[1].Nombre, produccion.LadoDerecho[2].Nombre);
 
-                    if (DerivaEnEpsilon(produccion.GetLadoDerecho()[2].ToString()))
+                    if (DerivaEnEpsilon(produccion.LadoDerecho[2].Nombre))
                     {
-                        AgregarSiguienteS2(produccion.GetLadoDerecho()[1].ToString(), produccion.GetLadoIzquierdo());
+                        AgregarSiguienteS2(produccion.LadoDerecho[1].Nombre, produccion.LadoIzquierdo);
                     }
                 }
 
-                if (produccion.GetLadoDerecho().Length == 2)
+                if (produccion.LadoDerecho.Length == 2)
                 {
-                    AgregarSiguienteS2(produccion.GetLadoDerecho()[1].ToString(), produccion.GetLadoIzquierdo());
+                    AgregarSiguienteS2(produccion.LadoDerecho[1].Nombre, produccion.LadoIzquierdo);
                 }
             }
 
             ReemplazarSiguientes();
 
             Console.WriteLine("----------------SIGUIENTES--------------");
-            foreach (Produccion siguiente in siguientes)
+            foreach (Conjunto siguiente in siguientes)
             {
                 Console.WriteLine(siguiente.ToString());
             }
@@ -374,9 +161,9 @@ namespace LL1
             {
                 seguirReemplazando = false;
 
-                foreach (Produccion siguiente in siguientes)
+                foreach (Conjunto siguiente in siguientes)
                 {
-                    string[] listaSiguientes = siguiente.GetLadoDerecho().Split(',');
+                    string[] listaSiguientes = siguiente.LadoDerecho.Split(',');
 
                     for (int i = 0; i < listaSiguientes.Length; i++)
                     {
@@ -384,9 +171,9 @@ namespace LL1
                         {
                             seguirReemplazando = true;
 
-                            Produccion siguientes = BuscarSiguientes(listaSiguientes[i][2].ToString());
+                            Conjunto siguientes = BuscarSiguientes(listaSiguientes[i][2].ToString());
 
-                            siguiente.SetLadoDerecho(siguiente.GetLadoDerecho().Replace(listaSiguientes[i], siguientes.GetLadoDerecho()));
+                            siguiente.SetLadoDerecho(siguiente.LadoDerecho.Replace(listaSiguientes[i], siguientes.LadoDerecho));
                         }
                     }
                 }
@@ -396,25 +183,22 @@ namespace LL1
 
         private void AgregarSiguienteS1(string izquierda, string derecha)
         {
-            Produccion primerosDerecha = BuscarPrimeros(derecha);
+            Conjunto primerosDerecha = BuscarPrimeros(derecha);
 
-            if (primerosDerecha != null)
+            string[] listaPrimeros = primerosDerecha.LadoDerecho.Split(',');
+
+            for (int i = 0; i < listaPrimeros.Length; i++)
             {
-                string[] listaPrimeros = primerosDerecha.GetLadoDerecho().Split(',');
-
-                for (int i = 0; i < listaPrimeros.Length; i++)
+                if (!listaPrimeros[i].Equals("€"))
                 {
-                    if (!listaPrimeros[i].Equals("€"))
-                    {
-                        AgregarLista(siguientes, listaPrimeros[i], izquierda);
-                    }
+                    AgregarLista(siguientes, listaPrimeros[i], izquierda);
                 }
-            }
-            else if (Pertenece(derecha, terminales))
-            {
-                if (!ExisteEn(BuscarSiguientes(izquierda).GetLadoDerecho().Split(','), derecha))
+                else if (Pertenece(derecha, terminales))
                 {
-                    AgregarLista(siguientes, derecha, izquierda);
+                    if (!ExisteEn(BuscarSiguientes(izquierda).LadoDerecho.Split(','), derecha))
+                    {
+                        AgregarLista(siguientes, derecha, izquierda);
+                    }
                 }
             }
         }
@@ -439,48 +223,45 @@ namespace LL1
 
         private bool DerivaEnEpsilon(string noTerminal)
         {
-            Produccion primerosNoTerminal = BuscarPrimeros(noTerminal);
+            Conjunto primerosNoTerminal = BuscarPrimeros(noTerminal);
 
-            if (primerosNoTerminal != null)
+            string[] listaPrimeros = primerosNoTerminal.LadoDerecho.Split(',');
+
+            for (int i = 0; i < listaPrimeros.Length; i++)
             {
-                string[] listaPrimeros = primerosNoTerminal.GetLadoDerecho().Split(',');
-
-                for (int i = 0; i < listaPrimeros.Length; i++)
+                if (listaPrimeros[i].Equals("€"))
                 {
-                    if (listaPrimeros[i].Equals("€"))
-                    {
-                        return true;
-                    }
+                    return true;
                 }
             }
 
             return false;
         }
 
-        private Produccion BuscarPrimeros(string noTerminal)
+        private Conjunto BuscarPrimeros(string noTerminal)
         {
-            foreach (Produccion produccion in primeros)
+            foreach (Conjunto produccion in primeros)
             {
-                if (produccion.GetLadoIzquierdo().Equals(noTerminal))
+                if (produccion.LadoIzquierdo.Equals(noTerminal))
                 {
                     return produccion;
                 }
             }
 
-            return null;
+            return new Conjunto("", "");
         }
 
-        private Produccion BuscarSiguientes(string noTerminal)
+        private Conjunto BuscarSiguientes(string noTerminal)
         {
-            foreach (Produccion produccion in siguientes)
+            foreach (Conjunto produccion in siguientes)
             {
-                if (produccion.GetLadoIzquierdo().Equals(noTerminal))
+                if (produccion.LadoIzquierdo.Equals(noTerminal))
                 {
                     return produccion;
                 }
             }
 
-            return null;
+            return new Conjunto("", "");
         }
 
         public void InicializarTabla()
@@ -548,18 +329,18 @@ namespace LL1
             int numeroColumna = 0;
             int numeroFila = 0;
 
-            foreach (Produccion produccionDePrimero in primeros)
+            foreach (Conjunto produccionDePrimero in primeros)
             {
-                string primero = produccionDePrimero.GetLadoDerecho();
-                string noTermPrimeros = produccionDePrimero.GetLadoIzquierdo();
+                string primero = produccionDePrimero.LadoDerecho;
+                string noTermPrimeros = produccionDePrimero.LadoIzquierdo;
                 prim.Add(primero);
                 noTerminalesPrimeros.Add(noTermPrimeros);
             }
 
-            foreach (Produccion produccionSiguiente in siguientes)
+            foreach (Conjunto produccionSiguiente in siguientes)
             {
-                string siguiente = produccionSiguiente.GetLadoIzquierdo();
-                string noTermSiguientes = produccionSiguiente.GetLadoDerecho();
+                string siguiente = produccionSiguiente.LadoIzquierdo;
+                string noTermSiguientes = produccionSiguiente.LadoDerecho;
                 noTerminalesSiguientes.Add(siguiente);
                 listaDeLosSiguientes.Add(noTermSiguientes);
             }
@@ -567,11 +348,11 @@ namespace LL1
 
             foreach (Produccion regla in listaProducciones)
             {
-                if (regla.GetLadoDerecho()[0].Equals('€'))
+                if (regla.LadoDerecho[0].Equals('€'))
                 {
                     for (int k = 0; k < noTerminalesSiguientes.Count; k++)
                     {
-                        if (regla.GetLadoIzquierdo().ToString().Equals(noTerminalesSiguientes[k]))
+                        if (regla.LadoIzquierdo.ToString().Equals(noTerminalesSiguientes[k]))
                         {
                             string[] elementosSiguientes = listaDeLosSiguientes[k].Split(',');
 
@@ -585,7 +366,7 @@ namespace LL1
 
                                         for (int n = 0; n < tabla.GetLength(0); n++)
                                         {
-                                            if (regla.GetLadoIzquierdo().ToString().Equals(tabla[n, 0]))
+                                            if (regla.LadoIzquierdo.ToString().Equals(tabla[n, 0]))
                                             {
                                                 i = n;
                                                 break;
@@ -599,11 +380,11 @@ namespace LL1
                         }
                     }
                 }
-                else if (Char.IsLetter(regla.GetLadoDerecho()[0]) && regla.GetLadoDerecho()[0].ToString().Equals(regla.GetLadoDerecho()[0].ToString().ToUpper()))
+                else if (Pertenece(regla.LadoDerecho[0].Nombre,terminales))
                 {
                     for (int i = 0; i < noTerminalesPrimeros.Count; i++)
                     {
-                        if (noTerminalesPrimeros[i].Equals(regla.GetLadoDerecho()[0].ToString()))
+                        if (noTerminalesPrimeros[i].Equals(regla.LadoDerecho[0].Nombre))
                         {
                             string[] elementosPrimeros = prim[i].Split(',');
 
@@ -613,7 +394,7 @@ namespace LL1
                                 {
                                     for (int k = 0; k < noTerminalesSiguientes.Count; k++)
                                     {
-                                        if (regla.GetLadoDerecho()[0].ToString().Equals(noTerminalesSiguientes[k]))
+                                        if (regla.LadoDerecho[0].Nombre.Equals(noTerminalesSiguientes[k]))
                                         {
                                             string[] elementosSiguientes = listaDeLosSiguientes[k].Split(',');
 
@@ -627,7 +408,7 @@ namespace LL1
 
                                                         for (int n = 0; n < listaProducciones.Count; n++)
                                                         {
-                                                            if (listaProducciones[n].GetLadoIzquierdo().Equals(regla.GetLadoIzquierdo()) && listaProducciones[n].GetLadoDerecho().Equals("€"))
+                                                            if (listaProducciones[n].LadoIzquierdo.Equals(regla.LadoIzquierdo) && listaProducciones[n].LadoDerecho[0].Equals("€"))
                                                             {
                                                                 tabla[k, m] = "€";
                                                                 reglaEpsilon = true;
@@ -654,7 +435,7 @@ namespace LL1
                                         {
                                             for (int l = 0; l < tabla.GetLength(0); l++)
                                             {
-                                                if (tabla[l, 0].Equals(regla.GetLadoIzquierdo()))
+                                                if (tabla[l, 0].Equals(regla.LadoIzquierdo))
                                                 {
                                                     tabla[l, k] = regla.GetLadoDerecho();
                                                 }
@@ -682,7 +463,7 @@ namespace LL1
                         }
                         else
                         {
-                            if (regla.GetLadoIzquierdo().ToString().Equals(tabla[i, 0]))
+                            if (regla.LadoIzquierdo.Equals(tabla[i, 0]))
                             {
                                 numeroFila = i;
                             }
@@ -697,15 +478,22 @@ namespace LL1
         private void IniciarProducciones()
         {
             listaProducciones = new List<Produccion>();
-            listaProducciones.Add(new Produccion("S", "(A)"));
-            listaProducciones.Add(new Produccion("S", "€"));
-            listaProducciones.Add(new Produccion("A", "TE"));
-            listaProducciones.Add(new Produccion("E", "&TE"));
-            listaProducciones.Add(new Produccion("E", "€"));
-            listaProducciones.Add(new Produccion("T", "(A)"));
-            listaProducciones.Add(new Produccion("T", "a"));
-            listaProducciones.Add(new Produccion("T", "b"));
-            listaProducciones.Add(new Produccion("T", "c"));
+
+            string[] producciones = Program.LeerArchivo("gramatica.txt").Split('\n');
+            foreach (string produccion in producciones)
+            {
+                string[] produccionDividida = produccion.Split(',');
+                string[] simbolosLadoDerecho = produccionDividida[1].Split(' ');
+
+                Simbolo[] simbolos = new Simbolo[simbolosLadoDerecho.Length];
+
+                for (int i = 0; i < simbolos.Length; i++)
+                {
+                    simbolos[i] = new Simbolo(simbolosLadoDerecho[i]);
+                }
+
+                listaProducciones.Add(new Produccion(produccionDividida[0], simbolos));
+            }
 
             Console.WriteLine("--------------PRODUCCIONES--------------");
             foreach (Produccion produccion in listaProducciones)
@@ -730,8 +518,8 @@ namespace LL1
 
             foreach (string noTerminal in noTerminales)
             {
-                primeros.Add(new Produccion(noTerminal, ""));
-                siguientes.Add(new Produccion(noTerminal, ""));
+                primeros.Add(new Conjunto(noTerminal, ""));
+                siguientes.Add(new Conjunto(noTerminal, ""));
             }
         }
 
