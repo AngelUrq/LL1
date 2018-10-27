@@ -90,8 +90,8 @@ namespace LL1
                     {
                         nuevoLadoDerecho += ",";
                     }
-
-                    produccion.SetLadoDerecho(nuevoLadoDerecho + simbolo);
+                    
+                    produccion.LadoDerecho = nuevoLadoDerecho + simbolo;
                     break;
                 }
             }
@@ -185,20 +185,24 @@ namespace LL1
         {
             Conjunto primerosDerecha = BuscarPrimeros(derecha);
 
-            string[] listaPrimeros = primerosDerecha.LadoDerecho.Split(',');
-
-            for (int i = 0; i < listaPrimeros.Length; i++)
+            if (!(primerosDerecha.LadoDerecho.Equals("") && primerosDerecha.LadoIzquierdo.Equals("")))
             {
-                if (!listaPrimeros[i].Equals("€"))
+                string[] listaPrimeros = primerosDerecha.LadoDerecho.Split(',');
+                
+                for (int i = 0; i < listaPrimeros.Length; i++)
                 {
-                    AgregarLista(siguientes, listaPrimeros[i], izquierda);
-                }
-                else if (Pertenece(derecha, terminales))
-                {
-                    if (!ExisteEn(BuscarSiguientes(izquierda).LadoDerecho.Split(','), derecha))
+                    if (!listaPrimeros[i].Equals("€"))
                     {
-                        AgregarLista(siguientes, derecha, izquierda);
+                        AgregarLista(siguientes, listaPrimeros[i], izquierda);
                     }
+                    
+                }
+            }
+            else if (Pertenece(derecha, terminales))
+            {
+                if (!ExisteEn(BuscarSiguientes(izquierda).LadoDerecho.Split(','), derecha))
+                {
+                    AgregarLista(siguientes, derecha, izquierda);
                 }
             }
         }
@@ -348,7 +352,7 @@ namespace LL1
 
             foreach (Produccion regla in listaProducciones)
             {
-                if (regla.LadoDerecho[0].Equals('€'))
+                if (regla.LadoDerecho[0].Nombre.Equals("€"))
                 {
                     for (int k = 0; k < noTerminalesSiguientes.Count; k++)
                     {
@@ -380,7 +384,7 @@ namespace LL1
                         }
                     }
                 }
-                else if (Pertenece(regla.LadoDerecho[0].Nombre,terminales))
+                else if (Pertenece(regla.LadoDerecho[0].Nombre,noTerminales))
                 {
                     for (int i = 0; i < noTerminalesPrimeros.Count; i++)
                     {

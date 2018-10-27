@@ -23,10 +23,6 @@ namespace LL1
             for(int i = 0; i < LadoDerecho.Length; i++)
             {
                 cadena += LadoDerecho[i].Nombre;
-                if (i != LadoDerecho.Length - 1)
-                {
-                    cadena += ",";
-                }
             }
             return cadena;
         }

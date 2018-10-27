@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace LL1
 {
-    struct Conjunto
+    class Conjunto
     {
         public string LadoIzquierdo { get; set; }
         public string LadoDerecho { get; set; }

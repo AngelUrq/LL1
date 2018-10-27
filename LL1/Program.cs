@@ -38,7 +38,7 @@ namespace LL1
             string cadena = "";
 
             FileStream fileStream = new FileStream(direccionArchivo, FileMode.Open, FileAccess.Read);
-            using (StreamReader streamReader = new StreamReader(fileStream, Encoding.UTF8))
+            using (StreamReader streamReader = new StreamReader(fileStream,Encoding.Default,true))
             {
                 string line;
                 while ((line = streamReader.ReadLine()) != null)
