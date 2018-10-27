@@ -479,20 +479,23 @@ namespace LL1
         {
             listaProducciones = new List<Produccion>();
 
-            string[] producciones = Program.LeerArchivo("gramatica.txt").Split('\n');
+            string[] producciones = Program.LeerArchivo("../../gramatica.txt").Split('\n');
             foreach (string produccion in producciones)
             {
-                string[] produccionDividida = produccion.Split(',');
-                string[] simbolosLadoDerecho = produccionDividida[1].Split(' ');
-
-                Simbolo[] simbolos = new Simbolo[simbolosLadoDerecho.Length];
-
-                for (int i = 0; i < simbolos.Length; i++)
+                if (!produccion.Equals(""))
                 {
-                    simbolos[i] = new Simbolo(simbolosLadoDerecho[i]);
-                }
+                    string[] produccionDividida = produccion.Split(',');
+                    string[] simbolosLadoDerecho = produccionDividida[1].Split(' ');
 
-                listaProducciones.Add(new Produccion(produccionDividida[0], simbolos));
+                    Simbolo[] simbolos = new Simbolo[simbolosLadoDerecho.Length];
+
+                    for (int i = 0; i < simbolos.Length; i++)
+                    {
+                        simbolos[i] = new Simbolo(simbolosLadoDerecho[i]);
+                    }
+
+                    listaProducciones.Add(new Produccion(produccionDividida[0], simbolos));
+                }
             }
 
             Console.WriteLine("--------------PRODUCCIONES--------------");
